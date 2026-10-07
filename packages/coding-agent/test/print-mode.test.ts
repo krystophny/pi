@@ -123,7 +123,7 @@ describe("runPrintMode", () => {
 		expect(session.extensionRunner.emit).toHaveBeenCalledWith({ type: "session_shutdown", reason: "quit" });
 	});
 
-	it("emits session_shutdown and returns non-zero on assistant error", async () => {
+	it.each(["text", "json"] as const)("returns non-zero on assistant error in %s mode", async (mode) => {
 		const runtimeHost = createRuntimeHost(
 			createAssistantMessage({ stopReason: "error", errorMessage: "provider failure" }),
 		);
@@ -131,7 +131,7 @@ describe("runPrintMode", () => {
 		const errorSpy = vi.spyOn(console, "error").mockImplementation(() => {});
 
 		const exitCode = await runPrintMode(runtimeHost as unknown as Parameters<typeof runPrintMode>[0], {
-			mode: "text",
+			mode,
 		});
 
 		expect(exitCode).toBe(1);
